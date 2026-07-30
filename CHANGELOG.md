@@ -21,10 +21,10 @@ per-file diff commands.
   regress it. (2) `/notion-sync` and `/gmail-sync` hard-coded Claude-specific MCP tool
   prefixes (`mcp__notion__*`, `mcp__claude_ai_Gmail__*`); both preflights now detect the MCP
   capability from the session's own tool list and give per-runtime connection instructions.
-  Adds `tools/copilot_permissions.py`, which derives Copilot `--allow-tool` flags from
-  `.claude/settings.json` so permissions keep a single source of truth, and warns where
-  Copilot's coarser command-name matching widens a rule. Documented in SETUP.md section 9
-  and in the new "Runtime Portability Constraints" section of AGENTS.md.
+  Permissions stay single-sourced in `.claude/settings.json` for Claude Code; on Copilot,
+  approve commands interactively or launch with `--allow-all-tools` (required for
+  non-interactive `-p` runs). Documented in SETUP.md section 9 and in the new
+  "Runtime Portability Constraints" section of AGENTS.md.
 
 - **README: the extension model, documented** - new Customization subsection "Extending the
   framework: portals, templates, criteria - and borrowing from other forks". States plainly

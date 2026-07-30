@@ -331,19 +331,21 @@ Copilot CLI refuses to load a skill whose frontmatter `description` exceeds 1024
 python3 tools/lint_skills.py
 ```
 
-### Pre-approved permissions need `--allow-tool`
+### Permissions
 
-Copilot does not read `.claude/settings.json`, and its `permissions.allow` setting is not honoured by the CLI's permission service (verified on CLI v1.0.76) — the only mechanism that actually pre-approves a command is the `--allow-tool` flag at launch. Rather than committing a second allowlist that would drift, `tools/copilot_permissions.py` derives the flags from `.claude/settings.json`:
+Copilot does not read `.claude/settings.json`, so the scoped allowlist there applies to Claude Code only. On Copilot you have two options:
 
 ```bash
-# Bash / zsh — print the launch command (and the widening warnings) first
-python3 tools/copilot_permissions.py
+# 1. Default: approve each command as it is proposed
+copilot
 
-# then start Copilot with those flags
-eval "copilot $(python3 tools/copilot_permissions.py --flags --quiet)"
+# 2. Auto-approve every tool call for the session
+copilot --allow-all-tools
 ```
 
-Read the stderr warnings before you use it. Copilot matches the **command name** only, while Claude Code matches a command prefix: `Bash(python3 salary_lookup.py:*)` has to widen to `shell(python3:*)`, which pre-approves *any* `python3` command for that session. If you'd rather not grant that, skip the flags entirely and approve each command interactively — every workflow works either way, you just get more prompts.
+Interactive approval is the safe default and every workflow in this repo works with it — you just get more prompts. `--allow-all-tools` skips them all, and it is **required** for non-interactive runs (`copilot -p "..."`), which deny everything otherwise.
+
+Be aware of the scope: `--allow-all-tools` approves *any* command the agent proposes — `curl`, `rm`, `git push` included — not just the four entries in `.claude/settings.json`. Use it in a workspace you're willing to have modified, and prefer plain `copilot` when you're reviewing unfamiliar changes. (`--allow-all` additionally waives path and URL prompts; `--yolo` is an alias for it.)
 
 ### MCP-backed commands
 

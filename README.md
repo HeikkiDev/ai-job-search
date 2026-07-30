@@ -181,7 +181,7 @@ ai-job-search/
 │   │   │   └── 07-interview-prep.md   # STAR examples + interview framework
 │   │   ├── job-scraper/               # Job search orchestration
 │   │   └── upskill/                   # /upskill skill gap analysis and learning plan
-│   └── settings.json                  # Claude Code permissions (shared, scoped; source for Copilot --allow-tool flags)
+│   └── settings.json                  # Claude Code permissions (scoped; Claude Code only)
 ├── .agents/skills/                    # Job portal CLI tools
 │   ├── jobbank-search/                # Akademikernes Jobbank (Denmark)
 │   ├── jobdanmark-search/             # Jobdanmark.dk (Denmark)
@@ -208,7 +208,6 @@ ai-job-search/
 ├── salary_lookup.py                   # Salary benchmarking tool (BYO data)
 ├── tools/
 │   ├── convert_salary_excel.py        # Convert salary Excel to JSON
-│   ├── copilot_permissions.py         # Derive Copilot CLI --allow-tool flags from .claude/settings.json
 │   ├── lint_skills.py                 # CI lint for skills, commands, settings.json
 │   ├── security_guards.py             # CI guards: permission allowlist, gitignore rules, manifests
 │   └── README_SALARY_TOOL.md          # Salary tool setup instructions

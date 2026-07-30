@@ -24,4 +24,4 @@ These rules keep the workspace loadable by every supported runtime. Treat them a
 
 - **Skill `description` must stay under 1024 characters.** GitHub Copilot CLI rejects longer descriptions and the skill then silently fails to load. Run `python3 tools/lint_skills.py` after editing any `SKILL.md`; `copilot skill list` reports load failures directly.
 - **Never hard-code MCP tool-name prefixes.** Tool namespaces differ per runtime (`mcp__notion__*` in Claude Code, `notion-*` in Copilot CLI). Detect MCP capability from the session's own tool list and degrade gracefully when it is absent.
-- **Permissions live in [.claude/settings.json](.claude/settings.json) only.** It is the single source of truth; `tools/copilot_permissions.py` derives Copilot CLI `--allow-tool` flags from it. Do not add a second, parallel allowlist.
+- **Permissions live in [.claude/settings.json](.claude/settings.json) only.** It is the single source of truth and applies to Claude Code; other runtimes rely on interactive approval (or their own blanket flag, e.g. `copilot --allow-all-tools`). Do not add a second, parallel allowlist.
