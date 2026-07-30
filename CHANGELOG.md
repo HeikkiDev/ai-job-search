@@ -13,6 +13,13 @@ per-file diff commands.
 
 ## [Unreleased]
 
+- **Removed the `jobdanmark-search` skill.** This fork targets the Spanish market, and the
+  portal's CLI additionally failed `bun run typecheck` in CI because its `tsconfig.json`
+  pointed `types` at `bun-types`, which is only a hoisted transitive of `@types/bun` and not
+  a declared dependency. Rather than repair a portal this fork does not use, the skill and its
+  CI matrix entry are dropped. The three remaining Danish demos (Jobbank, Jobindex, Jobnet)
+  still illustrate the portal pattern. README, SETUP and `/setup` references updated.
+
 - **Spanish portal skills: `infojobs-search` and `manfred-search`** - two new job-portal
   search CLIs for the Spanish market, generated with `/add-portal` and following the same
   command, flag and output contract as the shipped portals (zero runtime dependencies,

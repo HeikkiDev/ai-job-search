@@ -81,7 +81,7 @@ cd ai-job-search
 PowerShell:
 
 ```powershell
-$tools = @("jobbank-search", "jobdanmark-search", "jobindex-search", "jobnet-search", "linkedin-search", "freehire-search", "infojobs-search", "manfred-search")
+$tools = @("jobbank-search", "jobindex-search", "jobnet-search", "linkedin-search", "freehire-search", "infojobs-search", "manfred-search")
 foreach ($tool in $tools) {
   Push-Location ".agents/skills/$tool/cli"
   bun install
@@ -92,7 +92,7 @@ foreach ($tool in $tools) {
 Bash / zsh / Git Bash:
 
 ```bash
-for tool in jobbank-search jobdanmark-search jobindex-search jobnet-search linkedin-search freehire-search infojobs-search manfred-search; do
+for tool in jobbank-search jobindex-search jobnet-search linkedin-search freehire-search infojobs-search manfred-search; do
   (cd .agents/skills/$tool/cli && bun install)
 done
 ```
@@ -184,7 +184,6 @@ ai-job-search/
 │   └── settings.json                  # Claude Code permissions (scoped; Claude Code only)
 ├── .agents/skills/                    # Job portal CLI tools
 │   ├── jobbank-search/                # Akademikernes Jobbank (Denmark)
-│   ├── jobdanmark-search/             # Jobdanmark.dk (Denmark)
 │   ├── jobindex-search/               # Jobindex.dk (Denmark)
 │   ├── jobnet-search/                 # Jobnet.dk (Denmark, government portal)
 │   ├── linkedin-search/               # LinkedIn public job listings (country-agnostic)
@@ -289,7 +288,7 @@ If you prefer doing it by hand, the manual route still works: update the guidanc
 
 ### Job search tools
 
-The four Danish CLI tools in `.agents/skills/` (Jobbank, Jobdanmark, Jobindex, Jobnet) demonstrate the pattern for building a job-portal integration for a specific market. If you're in a different country, run:
+The three Danish CLI tools in `.agents/skills/` (Jobbank, Jobindex, Jobnet) demonstrate the pattern for building a job-portal integration for a specific market. If you're in a different country, run:
 
 ```
 /add-portal

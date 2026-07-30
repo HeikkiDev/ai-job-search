@@ -160,7 +160,6 @@ jobs:
           - freehire-search
           - infojobs-search
           - jobbank-search
-          - jobdanmark-search
           - jobindex-search
           - jobnet-search
           - linkedin-search
