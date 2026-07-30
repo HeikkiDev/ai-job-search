@@ -81,7 +81,7 @@ cd ai-job-search
 PowerShell:
 
 ```powershell
-$tools = @("jobbank-search", "jobdanmark-search", "jobindex-search", "jobnet-search", "linkedin-search", "freehire-search")
+$tools = @("jobbank-search", "jobindex-search", "jobnet-search", "linkedin-search", "freehire-search", "infojobs-search", "manfred-search")
 foreach ($tool in $tools) {
   Push-Location ".agents/skills/$tool/cli"
   bun install
@@ -92,12 +92,12 @@ foreach ($tool in $tools) {
 Bash / zsh / Git Bash:
 
 ```bash
-for tool in jobbank-search jobdanmark-search jobindex-search jobnet-search linkedin-search freehire-search; do
+for tool in jobbank-search jobindex-search jobnet-search linkedin-search freehire-search infojobs-search manfred-search; do
   (cd .agents/skills/$tool/cli && bun install)
 done
 ```
 
-For `linkedin-search` and `freehire-search` the install is optional: both have zero runtime dependencies and run with plain `bun`; `bun install` only pulls TypeScript dev types.
+For `linkedin-search`, `freehire-search`, `infojobs-search` and `manfred-search` the install is optional: all four have zero runtime dependencies and run with plain `bun`; `bun install` only pulls TypeScript dev types.
 
 ### 3. Set up your profile
 
@@ -184,11 +184,12 @@ ai-job-search/
 │   └── settings.json                  # Claude Code permissions (scoped; Claude Code only)
 ├── .agents/skills/                    # Job portal CLI tools
 │   ├── jobbank-search/                # Akademikernes Jobbank (Denmark)
-│   ├── jobdanmark-search/             # Jobdanmark.dk (Denmark)
 │   ├── jobindex-search/               # Jobindex.dk (Denmark)
 │   ├── jobnet-search/                 # Jobnet.dk (Denmark, government portal)
 │   ├── linkedin-search/               # LinkedIn public job listings (country-agnostic)
-│   └── freehire-search/               # freehire.me tech job aggregator (multi-market, REST API)
+│   ├── freehire-search/               # freehire.me tech job aggregator (multi-market, REST API)
+│   ├── infojobs-search/               # InfoJobs.net (Spain, all sectors)
+│   └── manfred-search/                # Manfred / getmanfred.com (Spain, tech, salary data)
 ├── cv/
 │   └── main_example.tex               # moderncv LaTeX template
 ├── cover_letters/
@@ -287,7 +288,7 @@ If you prefer doing it by hand, the manual route still works: update the guidanc
 
 ### Job search tools
 
-The four Danish CLI tools in `.agents/skills/` (Jobbank, Jobdanmark, Jobindex, Jobnet) demonstrate the pattern for building a job-portal integration for a specific market. If you're in a different country, run:
+The three Danish CLI tools in `.agents/skills/` (Jobbank, Jobindex, Jobnet) demonstrate the pattern for building a job-portal integration for a specific market. If you're in a different country, run:
 
 ```
 /add-portal
@@ -301,6 +302,11 @@ For **country-agnostic** starting points outside Denmark, the repo ships two por
 
 - **`linkedin-search`** — built on LinkedIn's public, unauthenticated `jobs-guest` endpoints. Field-agnostic, **zero runtime dependencies** (runs with just `bun`), and takes the search location as an explicit flag, so it works for any market out of the box (`-l "Berlin, Germany"`, `-l "Mumbai, Maharashtra, India"`, `-l "Remote"`, …). Intended for **personal use only** — automated access is against LinkedIn's Terms of Service, so keep volume low. See `.agents/skills/linkedin-search/SKILL.md`.
 - **`freehire-search`** — queries the [freehire.me](https://freehire.me) aggregator's public REST API (JSON, no API key). Tech-focused (software, data, engineering, DevOps, remote), multi-market via facet flags (`--region`, `--country`, `--remote`), and **zero runtime dependencies**. Unlike the HTML-scraping Danish portals, results come back structured (skills, seniority, category). The backend is MIT-licensed and [self-hostable](https://github.com/strelov1/freehire) — point `FREEHIRE_API_URL` at your own instance if you prefer. See `.agents/skills/freehire-search/SKILL.md`.
+
+This fork also ships two **Spanish** portal skills, built with `/add-portal`:
+
+- **`infojobs-search`** — [InfoJobs](https://www.infojobs.net), Spain's largest job board, across every sector (healthcare, hospitality, logistics, retail, tech, …). Reads the JSON payload the public `/ofertas-trabajo/` pages server-render, so results arrive structured and include the full description. Filters by province, work mode and recency. **Personal use only** — InfoJobs' robots.txt disallows its internal search endpoint, so this skill deliberately uses the crawlable SEO path instead; keep volume low. See `.agents/skills/infojobs-search/SKILL.md`.
+- **`manfred-search`** — [Manfred](https://www.getmanfred.com), a curated Spanish tech board, via its public REST API. Lower volume than InfoJobs but far richer signal: **published salary ranges**, remote percentage, and the required stack with proficiency levels. robots.txt permits crawling and the API is public, so no personal-use caveat applies. See `.agents/skills/manfred-search/SKILL.md`.
 
 ### Extending the framework: portals, templates, criteria - and borrowing from other forks
 

@@ -1,23 +1,18 @@
 {
-  "name": "jobdanmark-cli",
+  "name": "infojobs-cli",
   "version": "1.0.0",
-  "description": "CLI for the Jobdanmark.dk public job search API",
+  "description": "CLI for searching jobs on InfoJobs (infojobs.net, Spain) via its public SEO pages — no authentication, zero runtime dependencies. Personal use only.",
   "type": "module",
   "main": "src/cli.ts",
   "bin": {
-    "jobdanmark": "src/cli.ts"
+    "infojobs-search": "src/cli.ts"
   },
   "scripts": {
     "start": "bun run src/cli.ts",
     "test": "bun test --timeout 30000",
     "typecheck": "tsc --noEmit"
   },
-  "dependencies": {
-    "@bunli/core": "0.9.1",
-    "@bunli/utils": "0.6.0",
-    "node-html-parser": "^6.1.0",
-    "zod": "^3.23.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "typescript": "^5.4.0",
     "@types/bun": "1.3.14"
