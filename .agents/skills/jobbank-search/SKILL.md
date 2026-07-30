@@ -11,13 +11,10 @@ description: >
   jobbank, akademikernes jobbank, jobs denmark, academic jobs denmark, find job
   denmark, highly educated jobs, graduate job denmark, trainee position denmark,
   ph.d. position denmark, postdoc denmark, studiejob, fuldtidsjob, deltidsjob,
-  vikariat, freelance job, praktikplads, job søgning, jobsøgning, søg job,
-  ledige stillinger, nye jobs, it jobs denmark, engineering jobs denmark,
-  marketing jobs denmark, finance jobs denmark, healthcare jobs denmark,
-  remote job denmark, fjernarbejde, job københavn, job aarhus, job odense,
-  nyuddannede job, job til nyuddannede, international job denmark,
-  jobbank søgning, find stilling, data scientist job, software developer job,
-  projektleder stilling, konsulent job, data analyse job.
+  vikariat, praktikplads, jobsøgning, søg job, ledige stillinger, find stilling,
+  it jobs denmark, engineering jobs denmark, remote job denmark, fjernarbejde,
+  job københavn, job aarhus, job odense, job til nyuddannede,
+  data scientist job, software developer job, projektleder stilling.
 context: fork
 enabled: true  # set to false to keep this portal installed but have /scrape skip it
 allowed-tools: Bash(bun run .agents/skills/jobbank-search/cli/src/cli.ts *)

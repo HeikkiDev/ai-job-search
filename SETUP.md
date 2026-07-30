@@ -14,6 +14,10 @@ npm install -g @anthropic-ai/claude-code
 
 You'll need an Anthropic API key or a Claude Pro/Team subscription. See the [Claude Code docs](https://docs.anthropic.com/en/docs/claude-code) for details.
 
+### GitHub Copilot CLI (alternative to Claude Code)
+
+The framework also runs on [GitHub Copilot CLI](https://docs.github.com/copilot/how-tos/use-copilot-agents/use-copilot-cli), which reads `AGENTS.md` and `CLAUDE.md` for instructions and discovers `.claude/skills/`, `.claude/commands/`, and `.agents/skills/` as skills - so `/setup`, `/scrape`, `/rank`, `/apply`, `/outcome`, `/interview` and the portal searches all work unchanged. See "Running on Copilot CLI" below for the two differences that matter.
+
 ### Python
 
 Python 3.10+ is required for the salary lookup tool. Check with:
@@ -193,6 +197,8 @@ Start Claude Code in the repository:
 claude
 ```
 
+(On Copilot CLI, run `copilot` instead - see "Running on Copilot CLI" below.)
+
 Then run the onboarding:
 
 ```
@@ -298,6 +304,50 @@ Upstream keeps improving the methodology files your fork has personalized, so pl
    ```
    It compares the `framework_version` markers in your framework files against upstream and lists exactly which methodology files changed, with the diff command for each.
 3. **Merge normally.** `git merge upstream/master` (or `git pull`) three-way-merges upstream's edits around your personalization; because methodology edits rarely touch the lines `/setup` filled in, most updates land cleanly. A conflict in a personalized file is a *feature*, not a failure — it means upstream changed methodology in a section you customized, and the version marker plus its changelog commit tell you why. Resolve by keeping your data and adopting the methodology change around it.
+
+## 9. Running on Copilot CLI
+
+Everything above assumes Claude Code. To run the same workspace on [GitHub Copilot CLI](https://docs.github.com/copilot/how-tos/use-copilot-agents/use-copilot-cli), start it in the repository:
+
+```bash
+copilot
+```
+
+On first launch it asks you to trust the folder — choose "Yes, and remember this folder" so repo-level configuration applies to future sessions.
+
+Copilot loads `AGENTS.md` and `CLAUDE.md` as instructions and discovers `.claude/skills/`, `.claude/commands/`, and `.agents/skills/` as skills, so the workflow commands and portal searches behave the same. Verify with:
+
+```bash
+copilot skill list
+```
+
+Every skill in the repo should be listed and the output must end without a "failed to load" section. Two differences are worth knowing about.
+
+### Skill descriptions are capped at 1024 characters
+
+Copilot CLI refuses to load a skill whose frontmatter `description` exceeds 1024 characters — and the failure is silent in normal use; only `copilot skill list` reports it. Claude Code has no such cap. `tools/lint_skills.py` enforces the limit, so run it after editing any `SKILL.md` (and especially after `/add-portal` generates a new one):
+
+```bash
+python3 tools/lint_skills.py
+```
+
+### Pre-approved permissions need `--allow-tool`
+
+Copilot does not read `.claude/settings.json`, and its `permissions.allow` setting is not honoured by the CLI's permission service (verified on CLI v1.0.76) — the only mechanism that actually pre-approves a command is the `--allow-tool` flag at launch. Rather than committing a second allowlist that would drift, `tools/copilot_permissions.py` derives the flags from `.claude/settings.json`:
+
+```bash
+# Bash / zsh — print the launch command (and the widening warnings) first
+python3 tools/copilot_permissions.py
+
+# then start Copilot with those flags
+eval "copilot $(python3 tools/copilot_permissions.py --flags --quiet)"
+```
+
+Read the stderr warnings before you use it. Copilot matches the **command name** only, while Claude Code matches a command prefix: `Bash(python3 salary_lookup.py:*)` has to widen to `shell(python3:*)`, which pre-approves *any* `python3` command for that session. If you'd rather not grant that, skip the flags entirely and approve each command interactively — every workflow works either way, you just get more prompts.
+
+### MCP-backed commands
+
+`/notion-sync` and `/gmail-sync` need an MCP server, and both commands detect it at runtime rather than assuming a tool-name prefix, so they work on either runtime. On Copilot, add the server with `/mcp` (instead of `claude mcp add`) and restart the session — servers added mid-session are only picked up on restart. `/gmail-sync` has no claude.ai-connector equivalent on Copilot, so it needs a Gmail MCP server you configure yourself; without one it exits cleanly with a one-line message, exactly as it does when Gmail isn't connected in Claude Code.
 
 ## Troubleshooting
 

@@ -61,7 +61,7 @@ The framework encodes career guidance best practices, including structured evalu
 
 ## Prerequisites
 
-- [Claude Code](https://claude.com/claude-code) (CLI). Using a different agent tool (Codex, Antigravity, Gemini CLI)? Start at [`AGENTS.md`](AGENTS.md) - the portal search skills work there out of the box, and [community forks](https://github.com/MadsLorentzen/ai-job-search/discussions/78) adapt the full workflow.
+- [Claude Code](https://claude.com/claude-code) (CLI), or [GitHub Copilot CLI](https://docs.github.com/copilot/how-tos/use-copilot-agents/use-copilot-cli), which runs the full workflow unchanged — see [Running on Copilot CLI](SETUP.md#9-running-on-copilot-cli). Using a different agent tool (Codex, Antigravity, Gemini CLI)? Start at [`AGENTS.md`](AGENTS.md) - the portal search skills work there out of the box, and [community forks](https://github.com/MadsLorentzen/ai-job-search/discussions/78) adapt the full workflow.
 - Python 3.10+
 - [Bun](https://bun.sh) (for job search CLI tools)
 - LaTeX distribution with `lualatex` and `xelatex`: [TeX Live](https://tug.org/texlive/), [MacTeX](https://tug.org/mactex/), [TinyTeX](https://yihui.org/tinytex/), or [MiKTeX](https://miktex.org/). The CV compiles with `lualatex` (pdflatex often fails on modern MiKTeX installs with `fontawesome5` font-expansion errors); the cover letter compiles with `xelatex` because `cover.cls` requires `fontspec`. If using a minimal TeX install such as TinyTeX or BasicTeX, install the extra packages listed in [SETUP.md](SETUP.md#minimal-tex-install-tinytexbasictex).
@@ -181,7 +181,7 @@ ai-job-search/
 │   │   │   └── 07-interview-prep.md   # STAR examples + interview framework
 │   │   ├── job-scraper/               # Job search orchestration
 │   │   └── upskill/                   # /upskill skill gap analysis and learning plan
-│   └── settings.json                  # Claude Code permissions (shared, scoped)
+│   └── settings.json                  # Claude Code permissions (shared, scoped; source for Copilot --allow-tool flags)
 ├── .agents/skills/                    # Job portal CLI tools
 │   ├── jobbank-search/                # Akademikernes Jobbank (Denmark)
 │   ├── jobdanmark-search/             # Jobdanmark.dk (Denmark)
@@ -208,6 +208,7 @@ ai-job-search/
 ├── salary_lookup.py                   # Salary benchmarking tool (BYO data)
 ├── tools/
 │   ├── convert_salary_excel.py        # Convert salary Excel to JSON
+│   ├── copilot_permissions.py         # Derive Copilot CLI --allow-tool flags from .claude/settings.json
 │   ├── lint_skills.py                 # CI lint for skills, commands, settings.json
 │   ├── security_guards.py             # CI guards: permission allowlist, gitignore rules, manifests
 │   └── README_SALARY_TOOL.md          # Salary tool setup instructions
