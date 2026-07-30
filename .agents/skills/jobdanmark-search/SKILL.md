@@ -7,15 +7,12 @@ description: >
   Jobdanmark — even if they don't explicitly mention jobdanmark.dk. Also invoke this
   skill for questions about specific Danish job categories, municipalities, job types,
   or salaries in a job-search context. Trigger phrases include:
-  danish jobs, jobs in denmark, find job denmark, job search denmark, danish job listings,
-  jobdanmark, job opslag, find job, jobsøgning, ledige stillinger, stillingsopslag,
-  job i Danmark, fuldtidsjob, deltidsjob, studiejob, praktikplads, elev, fleksjob,
-  IT job denmark, sygeplejersker job, håndværker job, ingeniør job, pædagog job,
-  kontor job, leder job, salg job, hotel job, kirke job, job aarhus, job københavn,
-  job odense, job aalborg, job sjælland, job jylland, job fyn, jobkategorier denmark,
-  ledige job, ansøgningsfrist, søg job, job opslaget, jobopslag, danish vacancies,
-  work in denmark, employment denmark, job denmark, jobs near me denmark,
-  apprentice denmark, internship denmark, part-time denmark, full-time denmark.
+  danish jobs, jobs in denmark, find job denmark, job search denmark, jobdanmark,
+  job opslag, jobsøgning, ledige stillinger, stillingsopslag, job i Danmark,
+  fuldtidsjob, deltidsjob, studiejob, praktikplads, elev, fleksjob, IT job denmark,
+  sygeplejersker job, håndværker job, ingeniør job, pædagog job, kontor job,
+  leder job, salg job, job aarhus, job københavn, job odense, job aalborg,
+  ansøgningsfrist, work in denmark, internship denmark, danish vacancies.
 context: fork
 enabled: true  # set to false to keep this portal installed but have /scrape skip it
 allowed-tools: Bash(bun run .agents/skills/jobdanmark-search/cli/src/cli.ts *)

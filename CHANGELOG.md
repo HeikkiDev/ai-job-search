@@ -13,6 +13,19 @@ per-file diff commands.
 
 ## [Unreleased]
 
+- **GitHub Copilot CLI support** - the workspace now runs unchanged on Copilot CLI as well as
+  Claude Code, and two runtime-portability defects are fixed. (1) Four portal skills
+  (`jobindex`, `jobnet`, `jobbank`, `jobdanmark`) silently failed to load on Copilot because
+  their frontmatter `description` exceeded Copilot's 1024-character cap; the trigger lists are
+  trimmed and `tools/lint_skills.py` now enforces the limit, so `/add-portal` output cannot
+  regress it. (2) `/notion-sync` and `/gmail-sync` hard-coded Claude-specific MCP tool
+  prefixes (`mcp__notion__*`, `mcp__claude_ai_Gmail__*`); both preflights now detect the MCP
+  capability from the session's own tool list and give per-runtime connection instructions.
+  Permissions stay single-sourced in `.claude/settings.json` for Claude Code; on Copilot,
+  approve commands interactively or launch with `--allow-all-tools` (required for
+  non-interactive `-p` runs). Documented in SETUP.md section 9 and in the new
+  "Runtime Portability Constraints" section of AGENTS.md.
+
 - **README: the extension model, documented** - new Customization subsection "Extending the
   framework: portals, templates, criteria - and borrowing from other forks". States plainly
   what was previously folklore: the three extension points (portal skills with their

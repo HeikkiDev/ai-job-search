@@ -10,7 +10,19 @@ Follow these steps **in order**.
 
 ## Step 0: Prerequisites
 
-Confirm the Gmail MCP tools (`mcp__claude_ai_Gmail__*`) are available. If not, tell the user to connect the Gmail integration (claude.ai Settings → Connectors → Gmail) and stop - do not attempt this via Bash, IMAP, or any other channel.
+Confirm that Gmail MCP tools are available **in this session's own tool list** - never by running shell commands like `claude mcp list` or `copilot mcp`, which would interrupt the user with a permission prompt before the graceful exit.
+
+Tool naming is runtime-specific, so match on the Gmail capability rather than an exact prefix. Recognised forms include:
+
+- Claude Code with the claude.ai Gmail connector → `mcp__claude_ai_Gmail__*`
+- Claude Code with a self-hosted Gmail MCP server → `mcp__gmail__*`
+- GitHub Copilot CLI → tools namespaced by the configured server name, e.g. `gmail-*` for a server registered as `gmail`
+
+If no Gmail MCP tools are present, stop with one line telling the user how to connect for their runtime, then exit - do not attempt this via Bash, IMAP, or any other channel:
+
+> Gmail MCP isn't connected. In Claude Code, enable the Gmail connector (claude.ai Settings → Connectors → Gmail) or add a Gmail MCP server with `claude mcp add`. In Copilot CLI, add a Gmail MCP server via `/mcp`. Then start a **new session** (servers added mid-session are only picked up on restart) and re-run `/gmail-sync`.
+
+As with `/notion-sync`, "connected but not authenticable right now" (expired OAuth, or a headless context where the login flow cannot run) gets the same graceful exit as "not configured": state the reason in one line and stop. Never initiate an OAuth flow from this command.
 
 ---
 

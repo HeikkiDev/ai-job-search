@@ -10,12 +10,10 @@ description: >
   in Denmark. Also trigger for phrases like "find me a job", "are there any jobs for
   X in Copenhagen", or "what jobs are available in Aarhus" when the context is Denmark.
   Trigger phrases include: jobindex, jobsøgning, job i Danmark, ledige stillinger,
-  job opslag, find job, stillingopslag, jobannonce, job vacancy denmark, danish jobs,
-  jobs in denmark, job search denmark, work in denmark, find work denmark, IT jobs
-  denmark, engineer jobs denmark, developer jobs copenhagen, marketing jobs aarhus,
-  jobs aarhus, jobs copenhagen, jobs odense, jobs aalborg, job openings denmark,
-  hiring denmark, job listings denmark, python jobs denmark, grafisk designer job,
-  data engineer job, softwareudvikler job, full stack developer job danmark.
+  job opslag, find job, stillingopslag, jobannonce, danish jobs, jobs in denmark,
+  job search denmark, work in denmark, IT jobs denmark, developer jobs copenhagen,
+  jobs aarhus, jobs copenhagen, jobs odense, jobs aalborg, hiring denmark,
+  python jobs denmark, data engineer job, softwareudvikler job.
 context: fork
 enabled: true  # set to false to keep this portal installed but have /scrape skip it
 allowed-tools: Bash(bun run .agents/skills/jobindex-search/cli/src/cli.ts *)

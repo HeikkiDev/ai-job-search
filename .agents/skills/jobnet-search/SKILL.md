@@ -9,14 +9,11 @@ description: >
   or regions in a Danish employment context. This skill covers the official Danish
   public job portal operated by STAR (Styrelsen for Arbejdsmarked og Rekruttering).
   Trigger phrases include: danish jobs, danish job search, jobnet, jobnet.dk, find job
-  denmark, danish employment, job i danmark, job på jobnet, offentlige job, stillinger
-  i det offentlige, public sector jobs denmark, government jobs denmark, STAR jobs,
-  job ledige stillinger, ledig stilling, søg job, job opslag, job vacancy denmark,
-  stillingopslag, jobopslag, sygepleje job, ingeniør job, lærer job, pædagog job,
-  it-job denmark, jobs in copenhagen, jobs in aarhus, jobs in odense, deltidsjob,
-  fuldtidsjob, fastansættelse, tidsbegrænset ansættelse, fleksjob, sygeplejerske job,
-  social worker job denmark, occupation search denmark, esco occupation, job deadline,
-  ansøgningsfrist, søg efter job, full time job denmark, part time job denmark.
+  denmark, job i danmark, offentlige job, stillinger i det offentlige, public sector
+  jobs denmark, government jobs denmark, ledig stilling, søg job, job opslag,
+  stillingopslag, sygeplejerske job, ingeniør job, lærer job, pædagog job,
+  it-job denmark, jobs in copenhagen, jobs in aarhus, deltidsjob, fuldtidsjob,
+  fleksjob, esco occupation, ansøgningsfrist.
 context: fork
 enabled: true  # set to false to keep this portal installed but have /scrape skip it
 allowed-tools: Bash(bun run .agents/skills/jobnet-search/cli/src/cli.ts *)

@@ -6,6 +6,9 @@ Run from anywhere: python tools/lint_skills.py
 Checks:
 - Every SKILL.md (.claude/skills/*, .agents/skills/*) has YAML frontmatter that
   parses, with non-empty `name` and `description` keys
+- `description` fits within GitHub Copilot CLI's 1024-character skill limit
+  (Claude Code has no such cap, but an over-long description makes the skill
+  silently fail to load in Copilot CLI)
 - `allowed-tools` entries of the form `Bash(bun run <path> *)` point at files
   that exist (skill paths resolve relative to the repo root and to .agents/)
 - Every .claude/commands/*.md starts with a `# /<name>` title
@@ -26,6 +29,12 @@ except ImportError:
 
 ROOT = Path(__file__).resolve().parent.parent
 errors: list[str] = []
+
+# GitHub Copilot CLI refuses to load a skill whose description exceeds this many
+# characters ("Skill description must be at most 1024 characters"), and does so
+# silently unless you run `copilot skill list`. Claude Code imposes no such cap,
+# so the limit is enforced here to keep skills portable across both runtimes.
+MAX_DESCRIPTION_CHARS = 1024
 
 
 def rel(path: Path) -> str:
@@ -52,6 +61,16 @@ def check_skill(path: Path) -> None:
     for key in ("name", "description"):
         if not data.get(key):
             errors.append(f"{rel(path)}: frontmatter missing required key '{key}'")
+
+    description = data.get("description")
+    if isinstance(description, str):
+        length = len(description.strip())
+        if length > MAX_DESCRIPTION_CHARS:
+            errors.append(
+                f"{rel(path)}: description is {length} characters, exceeds the "
+                f"{MAX_DESCRIPTION_CHARS}-character limit enforced by GitHub Copilot CLI "
+                f"(the skill would silently fail to load there); trim trigger phrases"
+            )
 
     allowed = data.get("allowed-tools", "")
     if isinstance(allowed, str):
