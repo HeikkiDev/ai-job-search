@@ -13,6 +13,21 @@ per-file diff commands.
 
 ## [Unreleased]
 
+- **Spanish portal skills: `infojobs-search` and `manfred-search`** - two new job-portal
+  search CLIs for the Spanish market, generated with `/add-portal` and following the same
+  command, flag and output contract as the shipped portals (zero runtime dependencies,
+  `search`/`detail`, `--format json|table|plain`, JSON errors on stderr).
+  `infojobs-search` covers InfoJobs, Spain's largest board, across every sector; it reads the
+  JSON payload the public `/ofertas-trabajo/` pages server-render rather than scraping markup,
+  because only 5 of ~22 result cards exist in the HTML. It filters by province (with bilingual
+  aliases such as `Bizkaia` and `Illes Balears`), work mode and recency, and is marked
+  **personal use only**: InfoJobs' robots.txt disallows its internal search endpoint, so the
+  skill deliberately uses the crawlable SEO path instead. `detail` requires the full offer URL,
+  since the bare `/of-i<code>` shortcut is served an anti-bot challenge.
+  `manfred-search` covers Manfred, a curated Spanish tech board, via its public REST API -
+  lower volume but with published salary ranges, remote percentages and required stack. Both
+  are added to the CI `cli-checks` matrix and ship offline (fetch-mocked) test suites.
+
 - **GitHub Copilot CLI support** - the workspace now runs unchanged on Copilot CLI as well as
   Claude Code, and two runtime-portability defects are fixed. (1) Four portal skills
   (`jobindex`, `jobnet`, `jobbank`, `jobdanmark`) silently failed to load on Copilot because
