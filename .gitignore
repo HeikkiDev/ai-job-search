@@ -75,13 +75,6 @@ documents/postings/**
 documents/interview/**
 !documents/**/.gitkeep
 
-# Filled-in candidate profile: real name, phone, email and employment history.
-# The tracked upstream copy is a placeholder template; once /setup fills it in
-# it becomes personal data, and a fork is often public, so it is ignored here.
-# The `placeholder-integrity` CI job that would otherwise catch this only runs
-# on the upstream repository.
-.claude/skills/job-application-assistant/01-candidate-profile.md
-
 # Personal job search tracking
 job_search_tracker.csv
 
