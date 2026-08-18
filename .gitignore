@@ -87,6 +87,24 @@ documents/interview/**
 # Same reasoning as above: ignored so a public fork cannot leak it.
 CLAUDE.md
 
+# The remaining skill files /setup and /apply populate with personal content:
+# behavioural self-assessment, calibrated fit criteria, STAR examples and
+# interview answers, profile statements, and the name/phone/email baked into
+# the CV and cover-letter template snippets. All ship upstream as placeholder
+# templates and all become personal data once filled in.
+.claude/skills/job-application-assistant/02-behavioral-profile.md
+.claude/skills/job-application-assistant/04-job-evaluation.md
+.claude/skills/job-application-assistant/05-cv-templates.md
+.claude/skills/job-application-assistant/06-cover-letter-templates.md
+.claude/skills/job-application-assistant/07-interview-prep.md
+
+# Search queries encode the target roles, salary floor and locations of a
+# specific job seeker once /setup rewrites the placeholder queries.
+.claude/skills/job-scraper/search-queries.md
+
+# The example CV carries real name, address, phone and email once used.
+cv/main_example.tex
+
 # Personal job search tracking
 job_search_tracker.csv
 
