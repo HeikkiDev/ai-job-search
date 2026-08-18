@@ -82,11 +82,6 @@ documents/interview/**
 # on the upstream repository.
 .claude/skills/job-application-assistant/01-candidate-profile.md
 
-# CLAUDE.md ships upstream as a template, but /setup writes the same identity
-# data into it (name, phone, email, employment history, salary expectations).
-# Same reasoning as above: ignored so a public fork cannot leak it.
-CLAUDE.md
-
 # Personal job search tracking
 job_search_tracker.csv
 
