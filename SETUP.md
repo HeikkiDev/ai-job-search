@@ -349,7 +349,11 @@ Be aware of the scope: `--allow-all-tools` approves *any* command the agent prop
 
 ### MCP-backed commands
 
-`/notion-sync` and `/gmail-sync` need an MCP server, and both commands detect it at runtime rather than assuming a tool-name prefix, so they work on either runtime. On Copilot, add the server with `/mcp` (instead of `claude mcp add`) and restart the session — servers added mid-session are only picked up on restart. `/gmail-sync` has no claude.ai-connector equivalent on Copilot, so it needs a Gmail MCP server you configure yourself; without one it exits cleanly with a one-line message, exactly as it does when Gmail isn't connected in Claude Code.
+`/notion-sync` and `/gmail-sync` need an MCP server, and both bind it at runtime from the session's own tool list rather than assuming a tool-name prefix, so they work on either runtime. On Copilot, add the server with `/mcp add` (instead of `claude mcp add`) or as an `mcpServers` entry in `.copilot/mcp-config.json`, then restart the session — servers added mid-session are only picked up on restart.
+
+`/gmail-sync` has no claude.ai-connector equivalent on Copilot, so it needs a Gmail MCP server you configure yourself; the command binds whichever one you add by capability (search, fetch-full-body, list-labels) rather than by tool name, so servers such as `@gongrzhe/server-gmail-autoauth-mcp` (`search_emails` / `read_email` / `list_email_labels`) and `taylorwilsdon/google_workspace_mcp` (`search_gmail_messages` / `get_gmail_message_content` / `list_gmail_labels`) both work unchanged. A server that cannot return full message bodies is refused rather than used — the command never classifies an application's status from a snippet. Without any Gmail server it exits cleanly with a one-line message, exactly as it does when Gmail isn't connected in Claude Code.
+
+Note that `/gmail-sync` only ever calls the read tools it bound. Most Gmail MCP servers also expose `send_email` and delete/modify tools in the same namespace; the command is barred from calling them, but since Copilot approves MCP calls interactively (unless you started it with `--allow-all-tools`), you also get to see every call before it runs.
 
 ## Troubleshooting
 

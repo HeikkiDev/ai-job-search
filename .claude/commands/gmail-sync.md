@@ -8,21 +8,37 @@ Follow these steps **in order**.
 
 ---
 
-## Step 0: Prerequisites
+## Step 0: Prerequisites - Bind the Gmail Capability
 
-Confirm that Gmail MCP tools are available **in this session's own tool list** - never by running shell commands like `claude mcp list` or `copilot mcp`, which would interrupt the user with a permission prompt before the graceful exit.
+This command needs a Gmail MCP server. Tool names differ **per runtime and per server**, so never match on a fixed prefix or a fixed tool name - discover the capability from **this session's own tool list**. Never probe with shell commands like `copilot mcp`, `claude mcp list`, or a `curl`/IMAP fallback: that interrupts the user with a permission prompt before the graceful exit, and Gmail access outside the MCP server is out of scope for this command.
 
-Tool naming is runtime-specific, so match on the Gmail capability rather than an exact prefix. Recognised forms include:
+### Required capabilities
 
-- Claude Code with the claude.ai Gmail connector → `mcp__claude_ai_Gmail__*`
-- Claude Code with a self-hosted Gmail MCP server → `mcp__gmail__*`
-- GitHub Copilot CLI → tools namespaced by the configured server name, e.g. `gmail-*` for a server registered as `gmail`
+Bind by what a tool *does*, not what it is called. The rest of this command refers to these three roles:
 
-If no Gmail MCP tools are present, stop with one line telling the user how to connect for their runtime, then exit - do not attempt this via Bash, IMAP, or any other channel:
+| Role | What it must do | Named, depending on server |
+|---|---|---|
+| **SEARCH** | Take a Gmail search query, return matching threads or messages with their IDs | `search_threads` (claude.ai connector), `search_emails` (Gmail AutoAuth MCP), `search_gmail_messages` (Google Workspace MCP) |
+| **FETCH** | Return the **full body** of one thread or message from its ID | `get_thread` / `get_message`, `read_email`, `get_gmail_message_content` |
+| **LABELS** *(optional)* | List the mailbox's labels with their IDs | `list_labels`, `list_email_labels`, `list_gmail_labels` |
 
-> Gmail MCP isn't connected. In Claude Code, enable the Gmail connector (claude.ai Settings → Connectors → Gmail) or add a Gmail MCP server with `claude mcp add`. In Copilot CLI, add a Gmail MCP server via `/mcp`. Then start a **new session** (servers added mid-session are only picked up on restart) and re-run `/gmail-sync`.
+Namespacing is the runtime's business, not this command's: Copilot CLI prefixes each tool with the server name as registered in `.copilot/mcp-config.json` (a server registered as `gmail` surfaces `gmail-search_emails`), while Claude Code uses `mcp__<server>__<tool>`. Bind whatever the session actually exposes.
 
-As with `/notion-sync`, "connected but not authenticable right now" (expired OAuth, or a headless context where the login flow cannot run) gets the same graceful exit as "not configured": state the reason in one line and stop. Never initiate an OAuth flow from this command.
+Parameter names differ too (`pageSize` vs `maxResults`, `query` vs `q`, `messageFormat` vs `format`). Read the bound tool's own schema and pass what it declares - never send the claude.ai connector's argument names to a server that does not declare them.
+
+### Exit conditions
+
+Stop cleanly - one line, no retry loop, no fallback channel - when any of these hold:
+
+1. **No SEARCH or no FETCH tool.** LABELS is optional (Step 3 degrades without it); the other two are not.
+
+   > Gmail MCP isn't connected. In Copilot CLI, add a Gmail MCP server with `/mcp add` (or an `mcpServers` entry in `.copilot/mcp-config.json`), then start a **new session** - servers added mid-session are only picked up on restart - and re-run `/gmail-sync`. In Claude Code, enable the claude.ai Gmail connector (Settings → Connectors → Gmail) or add a server with `claude mcp add`, then restart likewise.
+
+2. **SEARCH exists but nothing returns full bodies.** A search-only server cannot satisfy Rule 1 (classify from full bodies, never snippets). Say so and stop rather than classifying from snippets.
+
+3. **Connected but not authenticable right now** - expired OAuth, or a headless context where the login flow cannot run. Same graceful exit as "not configured": state the reason in one line and stop. Never initiate an OAuth flow from this command; on Copilot that is `/mcp`, on Claude Code the connector settings, and either way it is the user's move made outside this command.
+
+On Copilot CLI every MCP call is approved interactively unless the session was started with `--allow-all-tools`. A **denied** call is a stop, not a prompt to retry or to reach for another channel: report what was denied and exit.
 
 ---
 
@@ -49,7 +65,7 @@ As with `/notion-sync`, "connected but not authenticable right now" (expired OAu
 
 Lookback window: `since <date>` argument if given, else `state.last_sync` if set, else `newer_than:30d`.
 
-1. Call `list_labels` and look for a user label whose name suggests job-search email (e.g. contains "job", "application", "career" case-insensitively). Note its `id` if found.
+1. If a **LABELS** tool was bound in Step 0, call it and look for a user label whose name suggests job-search email (e.g. contains "job", "application", "career" case-insensitively). Note its `id` if found. Without a LABELS tool, skip this - the label clause is an optional narrowing, not a requirement.
 2. Normalize each open application's company name for matching later (lowercase; strip `inc`, `inc.`, `llc`, `ltd`, `a/s`, `corp`, `corporation`, `group`; strip punctuation; collapse whitespace).
 3. Build a Gmail query combining (with `OR` groups via `{}`):
    - `label:<id>` if a job-search label was found
@@ -60,13 +76,23 @@ Lookback window: `since <date>` argument if given, else `state.last_sync` if set
 
 Example: `newer_than:30d in:inbox ({"Acme Corp" "BigCo"} OR {from:greenhouse.io from:lever.co from:myworkday.com from:ashbyhq.com})`
 
-4. Call `search_threads` with `view: THREAD_VIEW_MINIMAL`, `pageSize: 50`, paginating via `pageToken` until exhausted or results are clearly outside the relevant window.
+The query string itself is portable - every Gmail-backed MCP server passes it through to Gmail's own search syntax. Only the call around it varies.
+
+4. Call the bound **SEARCH** tool with that query, requesting the cheapest/most minimal view the tool offers (`view: THREAD_VIEW_MINIMAL`, `format: metadata`, or nothing at all - whatever its schema declares). Paginate with whatever the tool provides (`pageToken`, `nextPageToken`, offset) until exhausted or results are clearly outside the relevant window. If it exposes no pagination, request the largest page size it allows, and if the result set looks truncated say so in Step 6 rather than silently scanning a partial window.
+
+Some servers return **threads**, others return **messages**. Either is fine - Step 4 normalises them.
 
 ---
 
 ## Step 4: Filter to New Messages
 
-For each returned thread, inspect its messages' IDs against `state.processed_message_ids`. Skip a thread entirely if every message in it is already processed. For threads with unprocessed messages, call `get_thread` with `messageFormat: FULL_CONTENT` to get full bodies - **classification in Step 5 must never be based on the snippet/subject alone**, since snippets truncate the exact phrase that distinguishes "we'd like to schedule a call" from "thanks for applying."
+Compare the IDs the SEARCH tool returned against `state.processed_message_ids`, then fetch full bodies for what is new:
+
+- **Thread-oriented server:** skip a thread entirely when every message ID in it is already processed. Otherwise call **FETCH** on the thread, asking for full content (`messageFormat: FULL_CONTENT`, `format: full`, or the equivalent its schema declares).
+- **Message-oriented server:** skip individual message IDs already in state, and call **FETCH** once per remaining message ID.
+- **Server that returns thread IDs without per-message IDs:** treat the thread as the unit and store its ID prefixed `thread:<id>` in state, so the two ID spaces can never collide.
+
+**Classification in Step 5 must never be based on a snippet, subject, or search-result preview** - those truncate the exact phrase that distinguishes "we'd like to schedule a call" from "thanks for applying". If a FETCH fails for one message, leave it unprocessed and list it under "Unmatched" in Step 6; do not fall back to its snippet.
 
 ---
 
@@ -184,12 +210,13 @@ If this run pushed the count of applications with a **final** `outcome.md` statu
 
 ## Important Rules
 
-1. **Classify from full email bodies, never snippets.** A status-changing proposal requires having actually fetched and read the message via `get_thread`/`get_message`.
+1. **Classify from full email bodies, never snippets.** A status-changing proposal requires having actually fetched the message through the bound **FETCH** tool.
 2. **Nothing is written before the user approves the Step 6 batch.** Approving everything in one reply is fine UX; writing first and flagging it after is not.
 3. **Never propose `hired` or `offer_declined`.** Those require the user's real-world decision; `/gmail-sync` stops at proposing `offer` and flags it.
 4. **A conflicting signal against an already-final or already-written status is a manual-review flag, not a proposed overwrite.** When in doubt, don't propose it - surface it.
 5. **Append-only to `outcome.md` Notes**, same as `/outcome`. Never rewrite or delete existing history.
 6. **Idempotent by message ID.** Re-running must never re-propose, or duplicate a tracker note or Notes entry for, the same email.
 7. **Never fabricate a match.** If the company can't be confidently identified from the email, it goes in "Unmatched," not a guess.
-8. **Read-only against Gmail itself.** This command reads and classifies; it does not label, archive, or delete anything in the user's mailbox.
-9. **All state is personal data.** `gmail_sync/state.json`, `job_search_tracker.csv`, and `documents/applications/**` are gitignored - never suggest committing them.
+8. **Read-only against Gmail itself.** This command reads and classifies; it does not label, archive, mark as read, or delete anything in the user's mailbox. Community Gmail MCP servers commonly bundle write tools (`send_email`, `modify_email`, `delete_email`, `batch_modify_emails`) in the same namespace as the read ones - **only ever call the SEARCH, FETCH and LABELS tools bound in Step 0**, and never a write tool, however conveniently it is named.
+9. **Bind tools by capability, never by name or prefix.** Tool names and parameter names are server- and runtime-specific. A hard-coded `mcp__*` or `gmail-*` prefix, or a hard-coded `search_threads`-style call, breaks this command on every setup but one.
+10. **All state is personal data.** `gmail_sync/state.json`, `job_search_tracker.csv`, and `documents/applications/**` are gitignored - never suggest committing them.
